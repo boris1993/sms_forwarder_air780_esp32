@@ -1,0 +1,15 @@
+{
+    "Lua.diagnostics.globals": [
+        "wdt",
+        "log",
+        "gpio",
+        "uart",
+        "wlan",
+        "http",
+        "hmeta",
+        "rtos",
+        "json",
+        "socket"
+    ],
+    "Lua.completion.autoRequire": false
+}
