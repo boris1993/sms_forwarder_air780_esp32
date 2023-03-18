@@ -18,6 +18,10 @@
 
 ## 硬件组装
 
+- 短接POW键上方的焊盘实现通电即开机
+
+![](/image/shorting_soldering_pad_for_power_key.jpg)
+
 - 按照下图方向为Air780e和ESP32焊上排针和排座。注意合宙不送排座，需要自己买。
 
 | Air780E                  | ESP32S3                  |
