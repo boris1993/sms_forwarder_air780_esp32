@@ -64,7 +64,7 @@ local function luatos_notification(sender_number, content)
 
     log.info("notification_helper", "正在发送合宙推送平台通知")
 
-    local url = "https://push.luatos.org/4B9C2E1F93C648CFB11CAA8294C525D5.send/"..urlencode(sender_number).."/"..urlencode(content)
+    local url = "https://push.luatos.org/"..config.notification_channel.luatos.token..".send/"..urlencode(sender_number).."/"..urlencode(content)
     log.debug("notification_helper", "Calling LuatOS notification API: "..url)
 
     local code, headers, body = http.request("GET", url, nil, nil, {ipv6=true}).wait()
