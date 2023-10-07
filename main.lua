@@ -40,6 +40,10 @@ sys.taskInit(function()
     local ip_address = wlan.getIP()
     log.info(logging_tag, "无线网络连接成功，IP地址："..ip_address)
 
+    log.info(logging_tag, "配置DNS服务器")
+    socket.setDNS(nil, 1, "119.29.29.29")
+    socket.setDNS(nil, 2, "223.5.5.5")
+
     log.info(logging_tag, "等待时间同步")
     sys.waitUntil("NTP_UPDATE")
     log.info(logging_tag, "时间同步完成")
