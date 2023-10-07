@@ -39,6 +39,14 @@ config.notification_channel = {
         -- 机器人安全设定中的关键词
         keyword = ""
     },
+    -- telegram 机器人
+    telegram = {
+        enabled = true,
+        -- Webhook地址
+        webhook_url = "",
+        -- chat_id, 通过 https://api.telegram.org/bot<token>/getUpdates 获取
+        chat_id = ""
+    },
     -- PushPlus 推送加
     pushplus = {
         enabled = true,

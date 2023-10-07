@@ -192,12 +192,52 @@ local function pushplus(sender_number, content)
     log.info("notification_helper", "PushPlus通知发送完成")
 end
 
+local function telegram_bot(sender_number, content)
+    if not config.notification_channel.telegram.enabled then
+        return
+    end
+
+    if utils.is_empty(config.notification_channel.telegram.webhook_url) then
+        log.warn("notification_helper", "telegtsm URL未填写，跳过调用telegram bot")
+        return
+    elseif utils.is_empty(config.notification_channel.telegram.chat_id) then
+        log.warn("notification_helper", "telegram chat_id 未填写，跳过调用telegram bot")
+        return
+    end
+
+    log.info("notification_helper", "正在发送telegram bot通知")
+
+    local url = config.notification_channel.telegram.webhook_url
+    local chat_id = config.notification_channel.telegram.chat_id
+
+    local request_body = {
+        chat_id = chat_id,
+        parse_mode = "Markdown",
+        text = "*"..sender_number.."*\n"..content
+    }
+
+    local code, headers, response_body = http.request(
+        "POST",
+        url,
+        {["Content-Type"] = "application/json"},
+        json.encode(request_body),
+        {ipv6=true}
+    ).wait()
+
+    if code ~= 200 then
+        log.warn("notification_helper", "telegram api返回值不是200，HTTP状态码："..code.."，响应内容："..(response_body or ""))
+    end
+
+    log.info("notification_helper", "telegram bot通知发送完成")
+end
+
 local notification_channels = {
     bark = bark,
     luatos_notification = luatos_notification,
     server_chan = server_chan,
     ding_talk_bot = ding_talk_bot,
     pushplus = pushplus,
+    telegram_bot = telegram_bot,
 }
 
 local function call_notification_channels(sender_number, content)
