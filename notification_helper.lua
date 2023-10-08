@@ -23,14 +23,14 @@ local function bark(sender_number, content)
         return
     end
 
-    if utils.is_empty(config.notification_channel.bark.api_key) then
+    if utils.is_empty(config.notification_channel.bark.api_url) then
         log.warn("notification_helper", "Bark API key为空，跳过调用Bark API")
         return
     end
 
     log.info("notification_helper", "正在发送Bark通知")
 
-    local url = "https://api.day.app/"..config.notification_channel.bark.api_key
+    local url = config.notification_channel.bark.api_url
     log.debug("notification_helper", "Calling Bark API: "..url)
 
     local request_body = {

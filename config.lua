@@ -24,7 +24,7 @@ config.notification_channel = {
     -- Bark
     bark = {
         enabled = true,
-        api_key = ""
+        api_url = ""
     },
     -- Server酱
     server_chan = {
