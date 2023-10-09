@@ -59,10 +59,13 @@ sys.taskInit(function ()
     log.info(logging_tag, "Air780E已连接")
 
     log.info(logging_tag, "正在检查有无SIM卡")
-    at_command_result = air780.send_at_command_and_wait("AT+CPIN?", constants.air780_message_topic_sim_detected)
-    if not at_command_result then
-        log.error(logging_tag, "未检测到SIM卡")
-        return
+    while true do
+        at_command_result = air780.send_at_command_and_wait("AT+CPIN?", constants.air780_message_topic_sim_detected)
+        if at_command_result then
+            break
+        else
+            log.error(logging_tag, "未检测到SIM卡， 正在重试")
+        end
     end
 
     log.info(logging_tag, "正在配置短信功能")
