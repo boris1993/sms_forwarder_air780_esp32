@@ -198,7 +198,7 @@ local function telegram_bot(sender_number, content)
     end
 
     if utils.is_empty(config.notification_channel.telegram.webhook_url) then
-        log.warn("notification_helper", "telegtsm URL未填写，跳过调用telegram bot")
+        log.warn("notification_helper", "telegram URL未填写，跳过调用telegram bot")
         return
     elseif utils.is_empty(config.notification_channel.telegram.chat_id) then
         log.warn("notification_helper", "telegram chat_id 未填写，跳过调用telegram bot")
