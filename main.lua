@@ -94,6 +94,11 @@ sys.taskInit(function ()
         end
     end
 
+    if config.disable_netled then
+        log.info(logging_tag, "正在关闭NET灯闪烁")
+        air780.send_at_command("AT+CNETLIGHT=0")
+    end
+
     log.info(logging_tag, "初始化完成，等待新短信...")
 
     led_helper.light_status_led()

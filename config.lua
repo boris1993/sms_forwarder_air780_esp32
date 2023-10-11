@@ -6,6 +6,9 @@ config.log_level = log.LOG_INFO
 -- esp32c3 / esp32s3
 config.board_type = "esp32s3"
 
+-- 是否关闭Air780e网络指示灯
+config.disable_netled = true
+
 -- 是否禁止RNDIS
 -- 禁止RNDIS可以防止流量流失
 config.disable_rndis = true
