@@ -40,6 +40,10 @@ sys.taskInit(function()
     local ip_address = wlan.getIP()
     log.info(logging_tag, "无线网络连接成功，IP地址："..ip_address)
 
+    log.info(logging_tag, "配置DNS服务器")
+    socket.setDNS(nil, 1, "119.29.29.29")
+    socket.setDNS(nil, 2, "223.5.5.5")
+
     log.info(logging_tag, "等待时间同步")
     sys.waitUntil("NTP_UPDATE")
     log.info(logging_tag, "时间同步完成")
@@ -55,10 +59,13 @@ sys.taskInit(function ()
     log.info(logging_tag, "Air780E已连接")
 
     log.info(logging_tag, "正在检查有无SIM卡")
-    at_command_result = air780.send_at_command_and_wait("AT+CPIN?", constants.air780_message_topic_sim_detected)
-    if not at_command_result then
-        log.error(logging_tag, "未检测到SIM卡")
-        return
+    while true do
+        at_command_result = air780.send_at_command_and_wait("AT+CPIN?", constants.air780_message_topic_sim_detected)
+        if at_command_result then
+            break
+        else
+            log.error(logging_tag, "未检测到SIM卡， 正在重试")
+        end
     end
 
     log.info(logging_tag, "正在配置短信功能")
@@ -85,6 +92,11 @@ sys.taskInit(function ()
             log.info(logging_tag, "GPRS未附着，将在5秒后重新检查")
             sys.wait(5000)
         end
+    end
+
+    if config.disable_netled then
+        log.info(logging_tag, "正在关闭NET灯闪烁")
+        air780.send_at_command("AT+CNETLIGHT=0")
     end
 
     log.info(logging_tag, "初始化完成，等待新短信...")
