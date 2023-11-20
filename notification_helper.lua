@@ -60,6 +60,7 @@ local function luatos_notification(sender_number, content)
 
     if utils.is_empty(config.notification_channel.luatos.token) then
         log.warn("notification_helper", "合宙推送平台token为空，跳过调用合宙推送平台API")
+        return
     end
 
     log.info("notification_helper", "正在发送合宙推送平台通知")
@@ -82,6 +83,7 @@ local function server_chan(sender_number, content)
 
     if utils.is_empty(config.notification_channel.server_chan.send_key) then
         log.warn("notification_helper", "Server酱的SendKey为空，跳过调用Server酱API")
+        return
     end
 
     log.info("notification_helper", "正在发送Server酱通知")
@@ -166,6 +168,7 @@ local function pushplus(sender_number, content)
         return
     elseif utils.is_empty(config.notification_channel.pushplus.token) then
         log.warn("notification_helper", "PushPlus token未填写，跳过调用PushPlus")
+        return
     end
 
     log.info("notification_helper", "正在发送PushPlus通知")
@@ -198,14 +201,14 @@ local function telegram_bot(sender_number, content)
     end
 
     if utils.is_empty(config.notification_channel.telegram.webhook_url) then
-        log.warn("notification_helper", "telegram URL未填写，跳过调用telegram bot")
+        log.warn("notification_helper", "Telegram URL未填写，跳过调用Telegram bot")
         return
     elseif utils.is_empty(config.notification_channel.telegram.chat_id) then
-        log.warn("notification_helper", "telegram chat_id 未填写，跳过调用telegram bot")
+        log.warn("notification_helper", "Telegram chat_id 未填写，跳过调用Telegram bot")
         return
     end
 
-    log.info("notification_helper", "正在发送telegram bot通知")
+    log.info("notification_helper", "正在发送Telegram bot通知")
 
     local url = config.notification_channel.telegram.webhook_url
     local chat_id = config.notification_channel.telegram.chat_id
