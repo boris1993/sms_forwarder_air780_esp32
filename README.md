@@ -13,6 +13,7 @@
   - [x] Server酱
   - [x] 钉钉机器人
   - [x] 推送加 PushPlus
+  - [x] Telegram（感谢`@wongJG`的pull request）
 
 # 使用方法
 
