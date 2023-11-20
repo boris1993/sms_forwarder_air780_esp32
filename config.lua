@@ -14,7 +14,9 @@ config.disable_netled = true
 config.disable_rndis = true
 
 -- 是否在检查不到SIM卡时重试
-config.retry_sim_detection = false
+-- 目前发现1118版本AT固件无法通过重试来检测到后插入的SIM卡
+-- 而1156版本AT固件第一次检测有概率检测不到SIM卡，需要重试
+config.retry_sim_detection = true
 
 config.wifi = {
     ssid = "Wi-Fi名",
