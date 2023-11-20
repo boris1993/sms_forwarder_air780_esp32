@@ -21,6 +21,14 @@ config.wifi = {
     password = "Wi-Fi密码"
 }
 
+-- 手动配置DNS服务器
+-- 可以留空，也可以设定数个
+-- 但是多了也没用，要自己设定的话，放一两个就够了
+config.dns_servers = {
+    "119.29.29.29",
+    "223.5.5.5"
+}
+
 config.notification_channel = {
     -- 合宙推送服务器
     luatos = {
