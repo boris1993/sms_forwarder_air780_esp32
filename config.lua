@@ -13,6 +13,9 @@ config.disable_netled = true
 -- 禁止RNDIS可以防止流量流失
 config.disable_rndis = true
 
+-- 是否在检查不到SIM卡时重试
+config.retry_sim_detection = false
+
 config.wifi = {
     ssid = "Wi-Fi名",
     password = "Wi-Fi密码"
@@ -21,12 +24,12 @@ config.wifi = {
 config.notification_channel = {
     -- 合宙推送服务器
     luatos = {
-        enabled = true,
+        enabled = false,
         token = ""
     },
     -- Bark
     bark = {
-        enabled = true,
+        enabled = false,
         api_key = ""
     },
     -- Server酱
@@ -36,7 +39,7 @@ config.notification_channel = {
     },
     -- 钉钉Webhook机器人
     ding_talk = {
-        enabled = true,
+        enabled = false,
         -- Webhook地址
         webhook_url = "",
         -- 机器人安全设定中的关键词
@@ -44,7 +47,7 @@ config.notification_channel = {
     },
     -- telegram 机器人
     telegram = {
-        enabled = true,
+        enabled = false,
         -- Webhook地址
         webhook_url = "",
         -- chat_id, 通过 https://api.telegram.org/bot<token>/getUpdates 获取
@@ -52,7 +55,7 @@ config.notification_channel = {
     },
     -- PushPlus 推送加
     pushplus = {
-        enabled = true,
+        enabled = false,
         token = ""
     }
 }
