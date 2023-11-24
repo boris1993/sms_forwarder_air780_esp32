@@ -37,6 +37,10 @@
 
 ![](/image/put_together.jpeg)
 
+## 为Air780e刷入AT固件
+
+USB连接Air780e，选择 `Luatools/resource/618_lua_lod/版本号` 目录下的AT固件，将其烧录到Air780e。
+
 ## 修改脚本，刷入ESP32
 
 - 修改[`config.lua`](config.lua)
