@@ -28,7 +28,9 @@ config.wifi = {
 -- 但是多了也没用，要自己设定的话，放一两个就够了
 config.dns_servers = {
     "119.29.29.29",
-    "223.5.5.5"
+    "223.5.5.5",
+    "8.8.8.8",
+    "1.1.1.1"
 }
 
 config.notification_channel = {
@@ -67,6 +69,13 @@ config.notification_channel = {
     pushplus = {
         enabled = false,
         token = ""
+    },
+    -- 飞书机器人
+    feishu = {
+        enabled = false,
+        app_id = "",
+        app_secret = "",
+        receive_id="" -- 填写接收推送人的邮箱（通常飞书账户需要绑定邮箱）
     }
 }
 

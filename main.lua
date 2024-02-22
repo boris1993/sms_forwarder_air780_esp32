@@ -105,6 +105,12 @@ sys.taskInit(function ()
 
     log.info(logging_tag, "初始化完成，等待新短信...")
 
+    -- 测试短信推送，解除注释可开机时自动模拟推送一条，用于模块独立测试
+    -- sys.publish(
+    --     constants.air780_message_topic_new_notification_request,
+    --     '10086',
+    --     '测试短信内容')
+
     led_helper.light_status_led()
 end)
 

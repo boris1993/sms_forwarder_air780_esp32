@@ -234,6 +234,65 @@ local function telegram_bot(sender_number, content)
     log.info("notification_helper", "telegram bot通知发送完成")
 end
 
+local function feishu_bot(sender_number, content)
+    if not config.notification_channel.feishu.enabled then
+        return
+    end
+    if utils.is_empty(config.notification_channel.feishu.app_id) or utils.is_empty(config.notification_channel.feishu.app_secret) then
+        log.warn("notification_helper", "飞书机器人app_id或app_secret未填写，跳过调用飞书机器人")
+        return
+    end
+    if utils.is_empty(config.notification_channel.feishu.receive_id) then
+        log.warn("notification_helper", "飞书机器人receive_id未填写，跳过调用飞书机器人")
+        return
+    end
+    local app_id = config.notification_channel.feishu.app_id
+    local app_secret = config.notification_channel.feishu.app_secret
+    local receive_id = config.notification_channel.feishu.receive_id
+    local token_url = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
+    local request_body = {
+        app_id = app_id,
+        app_secret = app_secret
+    }
+    local code, headers, response_body = http.request(
+        "POST",
+        token_url,
+        {["Content-Type"] = "application/json"},
+        json.encode(request_body),
+        {ipv6=true}
+    ).wait()
+    if code ~= 200 then
+        log.warn("notification_helper", "飞书机器人获取access_token失败，HTTP状态码："..code.."，响应内容："..(response_body or ""))
+        return
+    end
+    local data = json.decode(response_body)
+    local access_token = data.tenant_access_token
+    if utils.is_empty(access_token) then
+        log.warn("notification_helper", "飞书机器人获取access_token失败，响应内容："..(response_body or ""))
+        return
+    end
+    log.info("notification_helper", "正在发送飞书机器人通知")
+    local url = "https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=email"
+    local request_body = {
+        msg_type = "text",
+        content = json.encode({
+            text = "收到来自 **"..sender_number.."** 的短信，内容：\n\n"..content
+        }),
+        receive_id = receive_id
+    }
+    local code, headers, response_body = http.request(
+        "POST",
+        url,
+        {["Content-Type"] = "application/json", ["Authorization"] = "Bearer "..access_token},
+        json.encode(request_body),
+        {ipv6=true}
+    ).wait()
+    if code ~= 200 then
+        log.warn("notification_helper", "飞书机器人发送消息失败，HTTP状态码："..code.."，响应内容："..(response_body or ""))
+    end
+    log.info("notification_helper", "飞书机器人通知发送完成")
+end
+
 local notification_channels = {
     bark = bark,
     luatos_notification = luatos_notification,
@@ -241,6 +300,7 @@ local notification_channels = {
     ding_talk_bot = ding_talk_bot,
     pushplus = pushplus,
     telegram_bot = telegram_bot,
+    feishu_bot = feishu_bot,
 }
 
 local function call_notification_channels(sender_number, content)
