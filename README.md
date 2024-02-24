@@ -13,7 +13,8 @@
   - [x] Server酱
   - [x] 钉钉机器人
   - [x] 推送加 PushPlus
-  - [x] Telegram（感谢`@wongJG`的pull request）
+  - [x] Telegram（感谢 [@wongJG](https://github.com/wongJG) 的 Pull Request）
+  - [x] 飞书机器人（感谢 [@mmdjiji](https://github.com/mmdjiji) 的 Pull Request）
 
 # 使用方法
 
