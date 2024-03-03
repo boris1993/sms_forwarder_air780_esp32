@@ -53,36 +53,6 @@ local function number_to_bcd_number(number)
     return prefix..converted_number
 end
 
-local function bcd_number_to_ascii(bcd_number)
-    local length = #bcd_number
-    local prefix = ""
-    local converted_number = ""
-
-    if length % 2 ~= 0 then
-        log.warn("pdu_helper", "BCD数字\""..bcd_number.."\"无效")
-        return
-    end
-
-    if bcd_number:sub(1, 2) == constants.pdu_sms_center_type.global then
-        prefix = "+"
-    end
-
-    -- 去掉本地/国际标识部分
-    length = length - 2
-    bcd_number = bcd_number:sub(3, -1)
-
-    -- 每次取两位，前后颠倒后，拼接至converted_number
-    for i = 1, (length - (length % 2)) / 2 do
-        converted_number = converted_number..bcd_number:sub(i * 2, i * 2)..bcd_number:sub(i * 2 - 1, i * 2 - 1)
-    end
-
-    if converted_number:sub(length, length):upper() == "F" then
-        converted_number = converted_number:sub(1, -2)
-    end
-
-    return prefix..converted_number
-end
-
 -- 解码GSM 8-bit编码
 local function gsm_8bit_decode(data)
     local ucs_data = ""
@@ -186,6 +156,49 @@ local function ucs2_to_utf8(s)
         end
     end
     return table.concat(temp)
+end
+
+local function bcd_number_to_ascii(bcd_number)
+    local length = #bcd_number
+    local prefix = ""
+    local converted_number = ""
+
+    if length % 2 ~= 0 then
+        log.warn("pdu_helper", "BCD数字\""..bcd_number.."\"无效")
+        return
+    end
+
+    -- 解析字母数字
+    if bcd_number:sub(1, 2) == constants.pdu_sms_center_type.alphanumeric then
+        log.debug("pdu_helper", "这是一个Alphanumeric（字母数字）"..bcd_number)
+        -- 提取address digits部分
+        bcd_number = bcd_number:sub(3, -1)
+        local decoded_number = gsm_7bit_decode(bcd_number, false)
+        log.debug("pdu_helper", "GSM-7 decoded, data: \""..decoded_number.."\"")
+        decoded_number = decoded_number:fromHex()
+        local decoded_number_in_utf8 = ucs2_to_utf8(decoded_number)
+        log.debug("pdu_helper", "number in UTF-8: "..decoded_number_in_utf8)
+        return decoded_number_in_utf8
+    end
+
+    if bcd_number:sub(1, 2) == constants.pdu_sms_center_type.global then
+        prefix = "+"
+    end
+
+    -- 去掉本地/国际标识部分
+    length = length - 2
+    bcd_number = bcd_number:sub(3, -1)
+
+    -- 每次取两位，前后颠倒后，拼接至converted_number
+    for i = 1, (length - (length % 2)) / 2 do
+        converted_number = converted_number..bcd_number:sub(i * 2, i * 2)..bcd_number:sub(i * 2 - 1, i * 2 - 1)
+    end
+
+    if converted_number:sub(length, length):upper() == "F" then
+        converted_number = converted_number:sub(1, -2)
+    end
+
+    return prefix..converted_number
 end
 
 --[[
