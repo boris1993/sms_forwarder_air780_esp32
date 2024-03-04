@@ -18,7 +18,8 @@ constants.led_blink_duration = {
 
 constants.pdu_sms_center_type = {
     domestic = "81",
-    global = "91"
+    global = "91",
+    alphanumeric = "D0"
 }
 
 constants.uart_ready_message = "UART_RECV_ID"

@@ -53,36 +53,6 @@ local function number_to_bcd_number(number)
     return prefix..converted_number
 end
 
-local function bcd_number_to_ascii(bcd_number)
-    local length = #bcd_number
-    local prefix = ""
-    local converted_number = ""
-
-    if length % 2 ~= 0 then
-        log.warn("pdu_helper", "BCD数字\""..bcd_number.."\"无效")
-        return
-    end
-
-    if bcd_number:sub(1, 2) == constants.pdu_sms_center_type.global then
-        prefix = "+"
-    end
-
-    -- 去掉本地/国际标识部分
-    length = length - 2
-    bcd_number = bcd_number:sub(3, -1)
-
-    -- 每次取两位，前后颠倒后，拼接至converted_number
-    for i = 1, (length - (length % 2)) / 2 do
-        converted_number = converted_number..bcd_number:sub(i * 2, i * 2)..bcd_number:sub(i * 2 - 1, i * 2 - 1)
-    end
-
-    if converted_number:sub(length, length):upper() == "F" then
-        converted_number = converted_number:sub(1, -2)
-    end
-
-    return prefix..converted_number
-end
-
 -- 解码GSM 8-bit编码
 local function gsm_8bit_decode(data)
     local ucs_data = ""
@@ -188,6 +158,56 @@ local function ucs2_to_utf8(s)
     return table.concat(temp)
 end
 
+-- 解析address digits
+local function bcd_number_to_ascii(bcd_number, is_odd)
+    local length = #bcd_number
+    local prefix = ""
+    local converted_number = ""
+
+    if length % 2 ~= 0 then
+        log.warn("pdu_helper", "BCD数字\""..bcd_number.."\"无效")
+        return
+    end
+
+    -- 解析字母数字
+    if bcd_number:sub(1, 2) == constants.pdu_sms_center_type.alphanumeric then
+        log.debug("pdu_helper", "这是一个Alphanumeric（字母数字）"..bcd_number)
+        -- 提取address digits部分
+        bcd_number = bcd_number:sub(3, -1)
+        local decoded_number = gsm_7bit_decode(bcd_number, false)
+        log.debug("pdu_helper", "GSM-7 decoded, data: \""..decoded_number.."\"")
+        decoded_number = decoded_number:fromHex()
+        local decoded_number_in_utf8 = ucs2_to_utf8(decoded_number)
+        log.debug("pdu_helper", "number in UTF-8: "..decoded_number_in_utf8)
+
+        -- 如果 address length 是奇数，则删除最后一个字符(@)
+        if is_odd then
+            decoded_number_in_utf8 = decoded_number_in_utf8:sub(1, -2)
+        end
+
+        return decoded_number_in_utf8
+    end
+
+    if bcd_number:sub(1, 2) == constants.pdu_sms_center_type.global then
+        prefix = "+"
+    end
+
+    -- 去掉本地/国际标识部分
+    length = length - 2
+    bcd_number = bcd_number:sub(3, -1)
+
+    -- 每次取两位，前后颠倒后，拼接至converted_number
+    for i = 1, (length - (length % 2)) / 2 do
+        converted_number = converted_number..bcd_number:sub(i * 2, i * 2)..bcd_number:sub(i * 2 - 1, i * 2 - 1)
+    end
+
+    if converted_number:sub(length, length):upper() == "F" then
+        converted_number = converted_number:sub(1, -2)
+    end
+
+    return prefix..converted_number
+end
+
 --[[
     解析PDU短信
 
@@ -233,13 +253,15 @@ function pdu_helper.decode_pdu(pdu, len)
 
     -- 源地址数字个数
     local sender_address_length = tonumber(string.format("%d", "0x"..pdu:sub(offset, offset + 1)))
+    -- 是否奇数
+    local is_odd = sender_address_length % 2 ~= 0
     log.debug("pdu_helper", "sender address length: "..sender_address_length)
     offset = offset + 2
 
     -- 加上号码类型2位，如果号码长度为奇数，那么再加1位F
     sender_address_length = sender_address_length % 2 == 0 and sender_address_length + 2 or sender_address_length + 3
     local sender_number_bcd = pdu:sub(offset, offset + sender_address_length - 1)
-    local sender_number = bcd_number_to_ascii(sender_number_bcd)
+    local sender_number = bcd_number_to_ascii(sender_number_bcd, is_odd)
     log.debug("pdu_helper", "sender_number: "..sender_number)
 
     offset = offset + sender_address_length
