@@ -32,13 +32,30 @@ led_helper.blink_status_led(constants.led_blink_duration.initializing)
 
 sys.taskInit(function()
     local logging_tag = "main - 初始化网络"
-    log.info(logging_tag, "正在连接无线网络"..config.wifi.ssid)
-    wlan.init()
-    wlan.setMode(wlan.STATION)
-    wlan.connect(config.wifi["ssid"], config.wifi.password)
-    sys.waitUntil("IP_READY")
-    local ip_address = wlan.getIP()
-    log.info(logging_tag, "无线网络连接成功，IP地址："..ip_address)
+    for _, wifi in ipairs(config.wifi) do
+        log.info(logging_tag, "正在连接无线网络" .. wifi.ssid)
+        wlan.init()
+        wlan.setMode(wlan.STATION)
+        wlan.connect(wifi.ssid, wifi.password)
+        sys.waitUntil("IP_READY", 30*1000)
+
+        if wlan.ready() then
+            local ip_address = wlan.getIP()
+            log.info(logging_tag, "无线网络连接成功，IP地址："..ip_address)
+            break
+        end
+
+        log.info(logging_tag, "无线网络连接失败！")
+        wlan.disconnect()
+        wlan.init()
+        sys.wait(5*1000)
+    end
+
+    if not wlan.ready() then
+        log.info(logging_tag, "所有无线网络均连接失败！模块重启。。。")
+        rtos.reboot()
+        return
+    end
 
     for index, value in ipairs(config.dns_servers) do
         log.info(logging_tag, "配置第"..index.."个DNS服务器为"..value)

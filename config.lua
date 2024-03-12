@@ -19,8 +19,14 @@ config.disable_rndis = true
 config.retry_sim_detection = true
 
 config.wifi = {
-    ssid = "Wi-Fi名",
-    password = "Wi-Fi密码"
+    {
+        ssid = "Wi-Fi名",
+        password = "Wi-Fi密码",
+    },
+    -- {
+    --     ssid = "",
+    --     password = "",
+    -- }
 }
 
 -- 手动配置DNS服务器
