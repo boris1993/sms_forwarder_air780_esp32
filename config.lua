@@ -82,6 +82,10 @@ config.notification_channel = {
         app_id = "",
         app_secret = "",
         receive_id="" -- 填写接收推送人的邮箱（通常飞书账户需要绑定邮箱）
+    },
+    wecom = {
+        enabled = true,
+        url = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=", -- 填写企业微信机器人推送 URL
     }
 }
 
