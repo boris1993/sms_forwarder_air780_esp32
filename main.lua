@@ -123,8 +123,43 @@ long_sms_buffer = {
 --]]
 local long_sms_buffer = {}
 
+local function concat_and_send_long_sms(phone_number, receive_time, sms_parts)
+    local full_content = ""
+
+    table.sort(sms_parts, function(a,b) return a.id < b.id end)
+
+    for _, sms in ipairs(sms_parts) do
+        log.debug("main", "message id: " .. sms.id .. ", content: ".. sms.sms_content)
+        full_content = full_content..sms.sms_content
+    end
+    -- 清空缓冲区
+    utils.clear_table(long_sms_buffer[phone_number][receive_time])
+    log.info("main", "长短信接收完成，完整内容："..full_content)
+    sys.publish(
+        constants.air780_message_topic_new_notification_request,
+        phone_number,
+        full_content)
+    led_helper.shut_working_led()
+end
+
+local function clean_sms_buffer(phone_number, receive_time)
+    if not long_sms_buffer[phone_number] then
+        return
+    end
+
+    if not long_sms_buffer[phone_number][receive_time] then
+        return
+    end
+
+    log.warn("main", "长短信接收超时，来自 ".. phone_number .."，接收时间 ".. receive_time)
+    if #long_sms_buffer[phone_number][receive_time] > 0 then
+        concat_and_send_long_sms(phone_number, receive_time, long_sms_buffer[phone_number][receive_time])
+        long_sms_buffer[phone_number][receive_time] = nil
+    end
+end
+
 sys.subscribe(constants.air780_message_topic_new_sms_received,
-function(phone_number, sms_content, _, is_long_message, total_message_number, current_message_id)
+function(phone_number, sms_content, receive_time, is_long_message, total_message_number, current_message_id)
     led_helper.blink_working_led(constants.led_blink_duration.working)
 
     if is_long_message then
@@ -134,34 +169,16 @@ function(phone_number, sms_content, _, is_long_message, total_message_number, cu
             long_sms_buffer[phone_number] = {}
         end
 
-        long_sms_buffer[phone_number][current_message_id] = sms_content
+        if not long_sms_buffer[phone_number][receive_time] then
+            long_sms_buffer[phone_number][receive_time] = {}
+            sys.timerStart(clean_sms_buffer, 30*1000, phone_number, receive_time)
+        end
 
-        if long_sms_buffer[phone_number] and #long_sms_buffer[phone_number] == total_message_number then
-            local full_content = ""
+        table.insert(long_sms_buffer[phone_number][receive_time], {id = current_message_id, sms_content = sms_content, receive_time = receive_time})
 
-            local message_ids = {}
-            for key in pairs(long_sms_buffer[phone_number]) do
-                table.insert(message_ids, key)
-            end
-
-            table.sort(message_ids)
-
-            for _, id in ipairs(message_ids) do
-                log.debug("main", "message id: "..id..", content: "..long_sms_buffer[phone_number][id])
-                full_content = full_content..long_sms_buffer[phone_number][id]
-            end
-
-            -- 清空缓冲区
-            utils.clear_table(long_sms_buffer[phone_number])
-            message_ids = nil
-
-            log.info("main", "长短信接收完成，完整内容："..full_content)
-            sys.publish(
-                constants.air780_message_topic_new_notification_request,
-                phone_number,
-                full_content)
-
-            led_helper.shut_working_led()
+        if long_sms_buffer[phone_number][receive_time] and #long_sms_buffer[phone_number][receive_time] == total_message_number then
+            concat_and_send_long_sms(phone_number, receive_time, long_sms_buffer[phone_number][receive_time])
+            long_sms_buffer[phone_number][receive_time] = nil
             return
         end
     else
