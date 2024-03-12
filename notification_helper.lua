@@ -305,7 +305,7 @@ local function wecom_bot(sender_number, content)
     local request_body = {
         msgtype = "text",
         text = {
-            content = "收到来自 **"..sender_number.."** 的短信，内容：\n\n"..content
+            content = "收到来自 "..sender_number.." 的短信，内容：\n\n"..content
         }
     }
     local code, headers, response_body = http.request(
