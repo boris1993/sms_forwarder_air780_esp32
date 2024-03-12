@@ -293,6 +293,33 @@ local function feishu_bot(sender_number, content)
     log.info("notification_helper", "飞书机器人通知发送完成")
 end
 
+local function wecom_bot(sender_number, content)
+    if not config.notification_channel.wecom.enabled then
+        return
+    end
+    if utils.is_empty(config.notification_channel.wecom.url) then
+        log.warn("notification_helper", "企业微信机器人推送 URL 未填写，跳过调用飞书机器人")
+        return
+    end
+    log.info("notification_helper", "正在发送企业微信机器人通知")
+    local request_body = {
+        msgtype = "text",
+        text = {
+            content = "收到来自 "..sender_number.." 的短信，内容：\n\n"..content
+        }
+    }
+    local code, headers, response_body = http.request(
+        "POST",
+        config.notification_channel.wecom.url,
+        {["Content-Type"] = "application/json"},
+        json.encode(request_body)
+    ).wait()
+    if code ~= 200 then
+        log.warn("notification_helper", "企业微信机器人发送消息失败，HTTP状态码："..code.."，响应内容："..(response_body or ""))
+    end
+    log.info("notification_helper", "企业微信机器人通知发送完成")
+end
+
 local notification_channels = {
     bark = bark,
     luatos_notification = luatos_notification,
@@ -301,6 +328,7 @@ local notification_channels = {
     pushplus = pushplus,
     telegram_bot = telegram_bot,
     feishu_bot = feishu_bot,
+    wecom_bot = wecom_bot,
 }
 
 local function call_notification_channels(sender_number, content)

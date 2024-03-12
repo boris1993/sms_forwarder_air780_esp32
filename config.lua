@@ -19,8 +19,14 @@ config.disable_rndis = true
 config.retry_sim_detection = true
 
 config.wifi = {
-    ssid = "Wi-Fi名",
-    password = "Wi-Fi密码"
+    {
+        ssid = "Wi-Fi名",
+        password = "Wi-Fi密码",
+    },
+    -- {
+    --     ssid = "",
+    --     password = "",
+    -- }
 }
 
 -- 手动配置DNS服务器
@@ -76,6 +82,10 @@ config.notification_channel = {
         app_id = "",
         app_secret = "",
         receive_id="" -- 填写接收推送人的邮箱（通常飞书账户需要绑定邮箱）
+    },
+    wecom = {
+        enabled = false,
+        url = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=", -- 填写企业微信机器人推送 URL
     }
 }
 
