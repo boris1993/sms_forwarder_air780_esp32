@@ -279,15 +279,26 @@ function pdu_helper.decode_pdu(pdu, len)
     offset = offset + 14
 
     local sms_receive_time = ""
-    for i = 1, 7 do
+    for i = 1, 6 do
         sms_receive_time = sms_receive_time .. timestamp:sub(i * 2, i * 2) .. timestamp:sub(i * 2 - 1, i * 2 - 1)
 
         if i <= 3 then
             sms_receive_time = i < 3 and (sms_receive_time .. "/") or (sms_receive_time .. ",")
-        elseif i <= 6 then
-            sms_receive_time = i < 6 and (sms_receive_time .. ":") or (sms_receive_time .. "+")
+        elseif i < 6 then
+            sms_receive_time = sms_receive_time .. ":"
         end
     end
+
+    local timezone = timestamp:sub(13,14)
+    timezone = tonumber(timezone, 16)
+    local tzNegative = (timezone & 0x08) == 0x08
+    timezone = timezone & 0xF7 -- 按位与 1111 0111
+    timezone = tonumber(string.format("%x", timezone):sub(2,2) .. string.format("%x", timezone):sub(1,1)) * 15 / 60
+
+    if tzNegative then
+        timezone = -timezone
+    end
+    sms_receive_time = sms_receive_time..string.format("%+03d",timezone)
 
     -- 短信文本长度
     local content_length = tonumber(string.format("%d", "0x"..pdu:sub(offset, offset + 1)))
