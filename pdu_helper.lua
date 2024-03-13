@@ -216,6 +216,7 @@ end
     是否为长短信
     如果为长短信，分了几包
     如果为长短信，当前是第几包
+    如果为长短信，短信 ID
 --]]
 function pdu_helper.decode_pdu(pdu, len)
     collectgarbage("collect")
@@ -305,23 +306,30 @@ function pdu_helper.decode_pdu(pdu, len)
     log.debug("pdu_helper", "Content Length: "..content_length)
     offset = offset + 2
 
+    local sms_id
     local current_idx
     local total_message_count
     if long_sms then
-        local header_length = tonumber("0x"..pdu:sub(offset, offset + 1))
+        local header_length = tonumber(pdu:sub(offset, offset + 1), 16)
         log.debug("pdu_helper", "Header length: "..header_length)
+
+        -- 指针走到header中的长短信 ID
+        -- 2 位 UDH 长度，2 位类型，2 位信息长度
+        offset = offset + 2 + 4
 
         -- 指针走到header中的长短信总条数
         -- header有两种，6位header的剩余协议头长度为5，7位header的剩余协议头长度为6
         if header_length == 5 then
-            offset = offset + 8
+            sms_id = tonumber(pdu:sub(offset, offset+1), 16)
+            offset = offset + 2
         else
-            offset = offset + 10
+            sms_id = tonumber(pdu:sub(offset, offset+3), 16)
+            offset = offset + 4
         end
 
-        total_message_count = tonumber("0x"..pdu:sub(offset, offset + 1))
+        total_message_count = tonumber(pdu:sub(offset, offset + 1), 16)
         offset = offset + 2
-        current_idx = tonumber("0x"..pdu:sub(offset, offset + 1))
+        current_idx = tonumber(pdu:sub(offset, offset + 1), 16)
         offset = offset + 2
 
         log.debug("pdu_helper", "current index: "..current_idx..", total: "..total_message_count)
@@ -352,7 +360,7 @@ function pdu_helper.decode_pdu(pdu, len)
         log.debug("pdu_helper", "Decoded UCS2 data: "..sms_content_in_utf8)
     end
 
-    return sender_number, sms_content_in_utf8, sms_receive_time, long_sms, total_message_count, current_idx
+    return sender_number, sms_content_in_utf8, sms_receive_time, long_sms, total_message_count, current_idx, sms_id
 end
 
 return pdu_helper
