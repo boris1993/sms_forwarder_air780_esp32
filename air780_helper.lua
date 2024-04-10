@@ -93,7 +93,7 @@ sys.subscribe(constants.uart_ready_message, function()
                 repeat
                     local line = table.remove(data, 1)
                     if #line > 0 then
-                        local phone_number, sms_content, receive_time, is_long_sms, total, current_id, sms_id = pdu_helper.decode_pdu(line, pdu_length)
+                        local phone_number, sms_content, receive_time, is_long_sms, total, current_id = pdu_helper.decode_pdu(line, pdu_length)
                         log.info("air780_helper", "于 "..receive_time.." 收到短信，来自号码"..phone_number..", 内容：\""..sms_content.."\"")
 
                         sys.publish(
@@ -103,8 +103,7 @@ sys.subscribe(constants.uart_ready_message, function()
                             receive_time,
                             is_long_sms,
                             total,
-                            current_id,
-                            sms_id)
+                            current_id)
                         break
                     end
                 until #data == 0
