@@ -150,7 +150,7 @@ local function concat_and_send_long_sms(phone_number, receive_time, sms_parts)
         full_content = full_content..sms.sms_content
     end
     -- 清空缓冲区
-    utils.clear_table(long_sms_buffer[phone_number][receive_time])
+    utils.clear_table(sms_parts)
     log.info("main", "长短信接收完成，完整内容："..full_content)
     sys.publish(
         constants.air780_message_topic_new_notification_request,
