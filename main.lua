@@ -150,7 +150,7 @@ local function concat_and_send_long_sms(phone_number, receive_time, sms_parts)
         full_content = full_content..sms.sms_content
     end
     -- 清空缓冲区
-    utils.clear_table(long_sms_buffer[phone_number][receive_time])
+    utils.clear_table(sms_parts)
     log.info("main", "长短信接收完成，完整内容："..full_content)
     sys.publish(
         constants.air780_message_topic_new_notification_request,
@@ -159,43 +159,43 @@ local function concat_and_send_long_sms(phone_number, receive_time, sms_parts)
     led_helper.shut_working_led()
 end
 
-local function clean_sms_buffer(phone_number, receive_time)
+local function clean_sms_buffer(phone_number, receive_time, sms_id)
     if not long_sms_buffer[phone_number] then
         return
     end
 
-    if not long_sms_buffer[phone_number][receive_time] then
+    if not long_sms_buffer[phone_number][sms_id] then
         return
     end
 
-    log.warn("main", "长短信接收超时，来自 ".. phone_number .."，接收时间 ".. receive_time)
-    if #long_sms_buffer[phone_number][receive_time] > 0 then
-        concat_and_send_long_sms(phone_number, receive_time, long_sms_buffer[phone_number][receive_time])
-        long_sms_buffer[phone_number][receive_time] = nil
+    log.warn("main", "长短信接收超时，来自 ".. phone_number .."，编号：".. sms_id .."，接收时间 ".. receive_time)
+    if #long_sms_buffer[phone_number][sms_id] > 0 then
+        concat_and_send_long_sms(phone_number, receive_time, long_sms_buffer[phone_number][sms_id])
+        long_sms_buffer[phone_number][sms_id] = nil
     end
 end
 
 sys.subscribe(constants.air780_message_topic_new_sms_received,
-function(phone_number, sms_content, receive_time, is_long_message, total_message_number, current_message_id)
+function(phone_number, sms_content, receive_time, is_long_message, total_message_number, current_message_id, sms_id)
     led_helper.blink_working_led(constants.led_blink_duration.working)
 
     if is_long_message then
-        log.info("main", "收到长短信，来自"..phone_number.."，正在将第"..current_message_id.."条存入缓冲区，共"..total_message_number.."条")
+        log.info("main", "收到长短信，来自"..phone_number.."，编号："..sms_id.."，正在将第"..current_message_id.."条存入缓冲区，共"..total_message_number.."条")
 
         if not long_sms_buffer[phone_number] then
             long_sms_buffer[phone_number] = {}
         end
 
-        if not long_sms_buffer[phone_number][receive_time] then
-            long_sms_buffer[phone_number][receive_time] = {}
-            sys.timerStart(clean_sms_buffer, 30*1000, phone_number, receive_time)
+        if not long_sms_buffer[phone_number][sms_id] then
+            long_sms_buffer[phone_number][sms_id] = {}
+            sys.timerStart(clean_sms_buffer, 30*1000, phone_number, receive_time, sms_id)
         end
 
-        table.insert(long_sms_buffer[phone_number][receive_time], {id = current_message_id, sms_content = sms_content, receive_time = receive_time})
+        table.insert(long_sms_buffer[phone_number][sms_id], {id = current_message_id, sms_content = sms_content, receive_time = receive_time})
 
-        if long_sms_buffer[phone_number][receive_time] and #long_sms_buffer[phone_number][receive_time] == total_message_number then
-            concat_and_send_long_sms(phone_number, receive_time, long_sms_buffer[phone_number][receive_time])
-            long_sms_buffer[phone_number][receive_time] = nil
+        if long_sms_buffer[phone_number][sms_id] and #long_sms_buffer[phone_number][sms_id] == total_message_number then
+            concat_and_send_long_sms(phone_number, receive_time, long_sms_buffer[phone_number][sms_id])
+            long_sms_buffer[phone_number][sms_id] = nil
             return
         end
     else
