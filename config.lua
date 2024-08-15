@@ -40,6 +40,13 @@ config.dns_servers = {
 }
 
 config.notification_channel = {
+    -- resend邮箱
+    resend = {
+        enabled = false,
+        api_token = "Bearer **********",
+        fromEmail = '*********** <Air780@resend.dev>'
+        toEmail = '**********@qq.com'
+    },
     -- 合宙推送服务器
     luatos = {
         enabled = false,
