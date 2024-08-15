@@ -18,6 +18,45 @@ local function urlencode(str)
     return str
  end
 
+
+local function resend(sender_number, content)
+    if not config.notification_channel.resend.enabled then
+        return
+    end
+
+    local api_token = config.notification_channel.resend.api_token
+
+    if utils.is_empty(api_token) then
+        log.warn("notification_helper", "Resend API token 为空")
+        return
+    end
+
+    log.info("notification_helper", "正在发送Resend通知")
+
+    local url = "https://api.resend.com/emails"
+    log.debug("notification_helper", "Calling Resend API: "..url)
+
+    local request_body = {
+        from = config.notification_channel.resend.fromEmail
+        subject = sender_number,
+        to = config.notification_channel.resend.toEmail
+        text = content
+    }
+
+    local code, headers, body = http.request(
+        "POST",
+        url,
+        {["Content-Type"] = "application/json",["Authorization"] = api_token},
+        json.encode(request_body),
+        {ipv6=true}
+    ).wait()
+    if code ~= 200 then
+        log.warn("notification_helper", "Resend API返回值不是200，HTTP状态码："..code.."，响应内容："..(body or ""))
+    end
+
+    log.info("notification_helper", "Resend通知发送完成")
+end
+
 local function bark(sender_number, content)
     if not config.notification_channel.bark.enabled then
         return
