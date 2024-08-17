@@ -18,6 +18,48 @@ local function urlencode(str)
     return str
  end
 
+
+local function resend(sender_number, content)
+    if not config.notification_channel.resend.enabled then
+        return
+    end
+
+    local api_token = config.notification_channel.resend.api_token
+
+    if utils.is_empty(api_token) then
+        log.warn("notification_helper", "Resend API token 为空")
+        return
+    end
+
+    log.info("notification_helper", "正在发送Resend通知")
+
+    local url = "https://api.resend.com/emails"
+    log.info("notification_helper", "Calling Resend API: "..url)
+    log.info("notification_helper", "Authorization: "..api_token)
+    local request_body = {
+        from = config.notification_channel.resend.fromEmail,
+        subject = sender_number,
+        to = config.notification_channel.resend.toEmail,
+        text = content,
+    }
+    log.info("notification_helper", "body: "..json.encode(request_body))
+    local code, headers, body = http.request(
+        "POST",
+        url,
+        {["Content-Type"] = "application/json",
+        ["Host"] = "api.resend.com",
+        ["Content-Length"] = json.encode(request_body).length,
+        ["Authorization"] = "Bearer "..api_token},
+        json.encode(request_body),
+        {ipv6=true}
+    ).wait()
+    if code ~= 200 then
+        log.warn("notification_helper", "Resend API返回值不是200，HTTP状态码："..code.."，响应内容："..(body or ""))
+    end
+
+    log.info("notification_helper", "Resend通知发送完成")
+end
+
 local function bark(sender_number, content)
     if not config.notification_channel.bark.enabled then
         return
@@ -321,6 +363,7 @@ local function wecom_bot(sender_number, content)
 end
 
 local notification_channels = {
+    resend = resend,
     bark = bark,
     luatos_notification = luatos_notification,
     server_chan = server_chan,
