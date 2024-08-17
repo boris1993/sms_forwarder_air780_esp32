@@ -44,8 +44,8 @@ config.notification_channel = {
     resend = {
         enabled = false,
         api_token = "Bearer **********",
-        fromEmail = '*********** <Air780@resend.dev>'
-        toEmail = '**********@qq.com'
+        fromEmail = '*********** <Air780@resend.dev>',
+        toEmail = '**********@qq.com',
     },
     -- 合宙推送服务器
     luatos = {
