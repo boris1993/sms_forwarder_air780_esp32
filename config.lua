@@ -40,7 +40,7 @@ config.dns_servers = {
 }
 
 config.notification_channel = {
-    -- resend邮箱
+    -- resend邮箱 https://resend.com/emails
     resend = {
         enabled = false,
         api_token = "re_********",
