@@ -40,7 +40,18 @@ config.dns_servers = {
 }
 
 config.notification_channel = {
-    -- resend邮箱
+    smtp = {
+        enabled = false,
+        SMTP_HOST = "smtp.qq.com",
+        SMTP_PORT = 25,
+        SMTP_USERNAME = "********@qq.com",
+        SMTP_PASSWORD = "xpv********caah",
+        SMTP_MAIL_FROM = "******@qq.com",
+        SMTP_MAIL_TO = "*******@qq.com",
+        SMTP_MAIL_SUBJECT = "来自 Air780 的通知",
+        SMTP_TLS_ENABLE = false,
+     },
+    -- resend邮箱 https://resend.com/emails
     resend = {
         enabled = false,
         api_token = "re_********",

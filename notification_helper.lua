@@ -18,6 +18,28 @@ local function urlencode(str)
     return str
  end
 
+local function smtp(sender_number, content)
+    local smtp_config = {
+        host = config.notification_channel.stmp.SMTP_HOST,
+        port = config.notification_channel.stmp.SMTP_PORT,
+        username = config.notification_channel.stmp.SMTP_USERNAME,
+        password = config.notification_channel.stmp.SMTP_PASSWORD,
+        mail_from = config.notification_channel.stmp.SMTP_MAIL_FROM,
+        mail_to = config.notification_channel.stmp.SMTP_MAIL_TO,
+        tls_enable = config.notification_channel.stmp.SMTP_TLS_ENABLE,
+        subject_config = config.notification_channel.stmp.SMTP_MAIL_SUBJECT,
+    }
+    
+    local result = lib_smtp.send(content,sender_number,smtp_config)
+    log.info("util_notify", "SMTP", result.success, result.message, result.is_retry)
+    if result.success then
+        return 200, nil, result.message
+    end
+    if result.is_retry then
+        return 500, nil, result.message
+    end
+    return 400, nil, result.message
+end
 
 local function resend(sender_number, content)
     if not config.notification_channel.resend.enabled then
@@ -363,6 +385,7 @@ local function wecom_bot(sender_number, content)
 end
 
 local notification_channels = {
+    smtp = smtp,
     resend = resend,
     bark = bark,
     luatos_notification = luatos_notification,

@@ -15,6 +15,8 @@
   - [x] 推送加 PushPlus
   - [x] Telegram（感谢 [@wongJG](https://github.com/wongJG) 的 Pull Request）
   - [x] 飞书机器人（感谢 [@mmdjiji](https://github.com/mmdjiji) 的 Pull Request）
+  - [x] 邮箱推送（使用[Resend](https://resend.com/emails)的api服务，邮箱条数有限制，接口不稳定，偶尔被墙）
+  - [x] 邮件 (SMTP协议，需自行开启邮箱的SMTP功能，使用SMTP协议，在刷写脚本时需要使用 "firmware\LuatOS-SoC_V1007_ESP32C3.soc"，点击“下载底层和脚本”)
 
 # 使用方法
 
@@ -73,6 +75,7 @@ USB连接Air780e，选择 `Luatools/resource/618_lua_lod/版本号` 目录下的
 - `LuatOS-SoC_V1004_ESP32C3_classic.soc`对应`ESP32C3 经典款`
 - `LuatOS-SoC_V1004_ESP32C3_lite.soc`对应`ESP32C3 简约款`
 - `LuatOS-SoC_V1004_ESP32S3.soc`对应`ESP32S3`
+- `LuatOS-SoC_V1007_ESP32C3.soc`对应`ESP32S3官方最新完整版固件(使用SMTP时需刷入此固件)`
 
 固件均通过[合宙云编译](https://wiki.luatos.com/develop/compile/Cloud_compilation.html)精简掉了不需要的功能，以保证内存空间充足。`LuaTools`自动下载的固件不能用，系统启动之后内存就不够用了，发不出去HTTP请求。
 
