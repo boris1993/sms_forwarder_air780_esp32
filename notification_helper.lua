@@ -34,19 +34,22 @@ local function resend(sender_number, content)
     log.info("notification_helper", "正在发送Resend通知")
 
     local url = "https://api.resend.com/emails"
-    log.debug("notification_helper", "Calling Resend API: "..url)
-
+    log.info("notification_helper", "Calling Resend API: "..url)
+    log.info("notification_helper", "Authorization: "..api_token)
     local request_body = {
-        from = config.notification_channel.resend.fromEmail
+        from = config.notification_channel.resend.fromEmail,
         subject = sender_number,
-        to = config.notification_channel.resend.toEmail
-        text = content
+        to = config.notification_channel.resend.toEmail,
+        text = content,
     }
-
+    log.info("notification_helper", "body: "..json.encode(request_body))
     local code, headers, body = http.request(
         "POST",
         url,
-        {["Content-Type"] = "application/json",["Authorization"] = api_token},
+        {["Content-Type"] = "application/json",
+        ["Host"] = "api.resend.com",
+        ["Content-Length"] = json.encode(request_body).length,
+        ["Authorization"] = "Bearer "..api_token},
         json.encode(request_body),
         {ipv6=true}
     ).wait()
@@ -360,6 +363,7 @@ local function wecom_bot(sender_number, content)
 end
 
 local notification_channels = {
+    resend = resend,
     bark = bark,
     luatos_notification = luatos_notification,
     server_chan = server_chan,
