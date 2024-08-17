@@ -43,7 +43,7 @@ config.notification_channel = {
     -- resend邮箱
     resend = {
         enabled = false,
-        api_token = "Bearer **********",
+        api_token = "**********",
         fromEmail = '*********** <Air780@resend.dev>',
         toEmail = '**********@qq.com',
     },
