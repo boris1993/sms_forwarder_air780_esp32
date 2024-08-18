@@ -75,7 +75,7 @@ USB连接Air780e，选择 `Luatools/resource/618_lua_lod/版本号` 目录下的
 - `LuatOS-SoC_V1004_ESP32C3_classic.soc`对应`ESP32C3 经典款`
 - `LuatOS-SoC_V1004_ESP32C3_lite.soc`对应`ESP32C3 简约款`
 - `LuatOS-SoC_V1004_ESP32S3.soc`对应`ESP32S3`
-- `LuatOS-SoC_V1007_ESP32C3.soc`对应`ESP32S3官方最新完整版固件(使用SMTP时需刷入此固件)`
+- `LuatOS-SoC_V1007_ESP32C3.soc`对应`ESP32C3官方最新完整版固件(使用SMTP时需刷入此固件)`
 
 固件均通过[合宙云编译](https://wiki.luatos.com/develop/compile/Cloud_compilation.html)精简掉了不需要的功能，以保证内存空间充足。`LuaTools`自动下载的固件不能用，系统启动之后内存就不够用了，发不出去HTTP请求。
 
