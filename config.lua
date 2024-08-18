@@ -51,6 +51,7 @@ config.notification_channel = {
         SMTP_MAIL_SUBJECT = "来自 Air780 的通知",
         SMTP_TLS_ENABLE = false,
      },
+     
     -- resend邮箱 https://resend.com/emails
     resend = {
         enabled = false,
