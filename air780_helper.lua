@@ -38,6 +38,10 @@ end)
 -- 发送AT指令
 function air780_helper.send_at_command(command)
     uart.write(uart_id, command)
+    -- 如果是PDU模式下的短信内容，直接返回
+    if command:sub(1, 6) == "001110" then
+        return
+    end
     uart.write(uart_id, "\r\n")
     log.debug("air780_helper", "发送AT指令\""..command.."\"")
 end
@@ -77,6 +81,20 @@ sys.subscribe(constants.uart_ready_message, function()
         -- 响应配置新消息提示指令
         if current_line:find("AT+CNMI", 1, true) then
             sys.publish(constants.air780_message_topic_new_message_notification_configured)
+            return
+        end
+
+        -- 响应发送短信指令
+        if current_line:find(">", 1, true) then
+            -- log.debug("air780_helper", "捕获到短信发送提示符")
+            sys.publish(constants.air780_helper_sms_send_ready)
+            return
+        end
+
+        -- 响应发送短信成功
+        if current_line:find("+CMGS:", 1, true) then
+            -- log.debug("air780_helper", "捕获到短信发送成功")
+            sys.publish(constants.air780_send_sms_success)
             return
         end
 
@@ -129,7 +147,7 @@ sys.subscribe(constants.uart_ready_message, function()
                         end
                     until #data == 0
                 end
-             end
+            end
         end
     end
 end)
@@ -145,4 +163,36 @@ function air780_helper.send_at_command_and_wait(command, topic_listen_to, timeou
     end
 end
 
+function air780_helper.topic_wait(topic, timeout)
+    local is_successful, r1, r2, r3 = sys.waitUntil(topic, timeout or 1000)
+    return is_successful
+end
+
+function air780_helper.sent_sms(to, text)
+    local logging_tag = "air780_helper.sent_sms"
+    local data, len = pdu_helper.encode_pdu(to, text)
+    if not data or not len then
+        log.error(logging_tag, "短信编码失败")
+        return false
+    end
+    air780_helper.send_at_command("AT+CMGS=" .. len)
+    
+    -- 增加调试信息
+    log.debug(logging_tag, "等待短信发送提示符")
+    local result = air780_helper.topic_wait(constants.air780_helper_sms_send_ready, 3000)
+    if not result then
+        log.error(logging_tag, "短信发送失败，AT+CMGS=" .. len .. " 超时")
+        return false
+    end
+
+    air780_helper.send_at_command(data .. "\x1A")
+    local result = air780_helper.topic_wait(constants.air780_send_sms_success, 5000)
+    if result then
+        log.info(logging_tag, "短信发送成功")
+        return true
+    else
+        log.error(logging_tag, "短信发送失败")
+        return false
+    end
+end
 return air780_helper

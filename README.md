@@ -80,6 +80,13 @@ USB连接Air780e，选择 `Luatools/resource/618_lua_lod/版本号` 目录下的
 
 目前固件包含`gpio`、`uart`、`pwm`、`wdt`、`crypto`、`rtc`、`network`、`sntp`、`tls`、`wlan`、`pm`、`cjson`、`ntp`、`shell`、`dbg`。
 
+# 保活 API 说明
+
+API 提供 GET 和 POST 请求支持。
+
+- GET 请求返回 POST 请求存储的时间戳
+- POST 请求接收 `{ "expiry": "1732622763" }`，并存储
+
 # 致谢
 
 本项目参考[低成本短信转发器](https://github.com/chenxuuu/sms_forwarding)而来，尤其是PDU相关代码，没有`chenxuuu`的这份项目和[50元内自制短信转发器（Air780E+ESP32C3）](https://www.chenxublog.com/2022/10/28/19-9-sms-forwarding-air780e-esp32c3.html)这篇文章，我不会这么快就完成开发。

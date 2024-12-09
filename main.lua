@@ -110,7 +110,7 @@ sys.taskInit(function ()
             log.info(logging_tag, "GPRS已附着")
             break
         else
-            log.info(logging_tag, "GPRS未附着，将在5秒后重新检查")
+            log.info(logging_tag, "GPRS未附着, 将在5秒后重新检查")
             sys.wait(5000)
         end
     end
@@ -129,6 +129,16 @@ sys.taskInit(function ()
     --     '测试短信内容')
 
     led_helper.light_status_led()
+end)
+
+sys.taskInit(function()
+    renew = require("renew")
+    sys.waitUntil(constants.air780_message_topic_new_message_notification_configured)
+    sys.waitUntil("NTP_UPDATE")
+    if config.renew_check_interval > 0 then
+        log.info("renew", "自动续期启动")
+        renew.renew()
+    end
 end)
 
 --[[

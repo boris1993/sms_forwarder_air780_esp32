@@ -363,4 +363,18 @@ function pdu_helper.decode_pdu(pdu, len)
     return sender_number, sms_content_in_utf8, sms_receive_time, long_sms, total_message_count, current_idx, sms_id
 end
 
+-- 生成PDU短信编码
+-- 仅支持单条短信，传入数据为utf8编码
+-- 返回值为pdu编码与长度
+function pdu_helper.encode_pdu(num,data)
+    data = utf8_to_ucs2(data):toHex()
+    local numlen, datalen, pducnt, pdu, pdulen, udhi = string.format("%02X", #num), #data / 2, 1, "", "", ""
+    if datalen > 140 then--短信内容太长啦
+        data = data:sub(1, 140 * 2)
+    end
+    datalen = string.format("%02X", datalen)
+    pdu = "001110" .. numlen .. number_to_bcd_number(num) .. "000800" .. datalen .. data
+    return pdu, #pdu // 2 - 1
+end
+
 return pdu_helper

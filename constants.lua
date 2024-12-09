@@ -32,5 +32,7 @@ constants.air780_message_topic_new_message_notification_configured = "NEW_MESSAG
 constants.air780_message_topic_network_connected = "NETWORK_CONNECTED"
 constants.air780_message_topic_new_sms_received = "NEW_SMS_RECEIVED"
 constants.air780_message_topic_new_notification_request = "NEW_NOTIFICATION_REQUEST"
+constants.air780_helper_sms_send_ready = "SMS_SEND_READY"
+constants.air780_send_sms_success = "SMS_SENT_SUCCESSFULLY"
 
 return constants
