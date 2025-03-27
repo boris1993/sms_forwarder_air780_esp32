@@ -18,15 +18,22 @@ config.disable_rndis = true
 -- 而1156版本AT固件第一次检测有概率检测不到SIM卡，需要重试
 config.retry_sim_detection = true
 
+-- 续期 API
+config.renew_api = "https://api.example.com/sim/expiry"
+-- 续期间隔
+config.renew_day = 180
+-- 续期检查间隔，单位小时。为 0 时禁用
+config.renew_check_interval = 0
+-- 续期接收号码
+config.renew_number = "+8613881388138"
+-- 续期短信内容
+config.renew_content = "注意余额"
+
 config.wifi = {
     {
         ssid = "Wi-Fi名",
         password = "Wi-Fi密码",
     },
-    -- {
-    --     ssid = "",
-    --     password = "",
-    -- }
 }
 
 -- 手动配置DNS服务器
@@ -40,13 +47,17 @@ config.dns_servers = {
 }
 
 config.notification_channel = {
-    -- resend邮箱 https://resend.com/emails
-    resend = {
+    smtp = {
         enabled = false,
-        api_token = "re_********",
-        fromEmail = '*********** <Air780@resend.dev>',
-        toEmail = '**********@qq.com',
-    },
+        SMTP_HOST = "smtp.qq.com",
+        SMTP_PORT = 25,
+        SMTP_USERNAME = "********@qq.com",
+        SMTP_PASSWORD = "xpv********caah", --smtp授权码
+        SMTP_MAIL_FROM = "******@qq.com", --SMTP_USERNAME  SMTP_MAIL_FROM SMTP_MAIL_TO可以为同一个邮箱
+        SMTP_MAIL_TO = "*******@qq.com",
+        SMTP_MAIL_SUBJECT = "来自 Air780 的通知",
+        SMTP_TLS_ENABLE = false,
+     },
     -- 合宙推送服务器
     luatos = {
         enabled = false,
@@ -73,7 +84,7 @@ config.notification_channel = {
     -- telegram 机器人
     telegram = {
         enabled = false,
-        -- Webhook地址
+        -- Webhook地址， https://api.telegram.org/bot<token>/sendMessage
         webhook_url = "",
         -- chat_id, 通过 https://api.telegram.org/bot<token>/getUpdates 获取
         chat_id = ""
