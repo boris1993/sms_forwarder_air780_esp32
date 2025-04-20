@@ -316,6 +316,48 @@ local function feishu_bot(sender_number, content)
     log.info("notification_helper", "飞书机器人通知发送完成")
 end
 
+local function feishu_webhook(sender_number, content)
+    if not config.notification_channel.feishu_webhook.enabled then
+        return
+    end
+    if utils.is_empty(config.notification_channel.feishu_webhook.webhook_url) then
+        log.warn("notification_helper", "飞书群聊机器人webhook_url未填写，跳过调用飞书群聊机器人")
+        return
+    end
+    if utils.is_empty(config.notification_channel.feishu_webhook.secret) then
+        log.warn("notification_helper", "飞书群聊机器人secret未填写，跳过调用飞书群聊机器人")
+        return
+    end
+    local webhook_url = config.notification_channel.feishu_webhook.webhook_url
+    local secret = config.notification_channel.feishu_webhook.secret
+    local timestamp = tostring(os.time())
+    local sign = crypto.hmac_sha256("", timestamp .. "\n" .. secret):fromHex():toBase64()
+    log.info("notification_helper", "正在发送飞书群聊机器人通知")
+    local request_body = {
+        timestamp = timestamp,
+        sign = sign,
+        msg_type = "text",
+        content = json.encode({
+            text = "收到来自 **"..sender_number.."** 的短信，内容：\n\n"..content
+        }),
+    }
+    local code, headers, response_body = http.request(
+        "POST",
+        webhook_url,
+        {["Content-Type"] = "application/json"},
+        json.encode(request_body),
+        {ipv6=true}
+    ).wait()
+    if code ~= 200 then
+        log.warn("notification_helper", "飞书群聊机器人发送消息失败，HTTP状态码："..code.."，响应内容："..(response_body or ""))
+    end
+    local resp = json.decode(response_body)
+    if resp.code ~= 0 then
+        log.warn("notification_helper", "飞书群聊机器人发送消息失败，错误码："..resp.code.."，响应内容："..(resp.msg or ""))
+    end
+    log.info("notification_helper", "飞书群聊机器人通知发送完成")
+end
+
 local function wecom_bot(sender_number, content)
     if not config.notification_channel.wecom.enabled then
         return
@@ -352,6 +394,7 @@ local notification_channels = {
     pushplus = pushplus,
     telegram_bot = telegram_bot,
     feishu_bot = feishu_bot,
+    feishu_webhook = feishu_webhook,
     wecom_bot = wecom_bot,
 }
 

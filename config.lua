@@ -101,6 +101,12 @@ config.notification_channel = {
         app_secret = "",
         receive_id="" -- 填写接收推送人的邮箱（通常飞书账户需要绑定邮箱）
     },
+    -- 飞书群聊机器人
+    feishu_webhook = {
+        enabled = false,
+        webhook_url = "",
+        secret = "",
+    },
     wecom = {
         enabled = false,
         url = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=", -- 填写企业微信机器人推送 URL
