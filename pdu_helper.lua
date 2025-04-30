@@ -158,6 +158,32 @@ local function ucs2_to_utf8(s)
     return table.concat(temp)
 end
 
+local function utf8_to_ucs2(s)
+    local ucsdata = ""
+    local i = 1
+    while i <= #s do
+        local c = string.byte(s, i)
+        local resdata = 0
+        local nbyte = 0
+        if c < 128 then
+            resdata = c
+            nbyte = 1
+        elseif c < 224 then
+            resdata = (c - 192) * 64 + (string.byte(s, i + 1) - 128)
+            nbyte = 2
+        elseif c < 240 then
+            resdata = (c - 224) * 4096 + (string.byte(s, i + 1) - 128) * 64 + (string.byte(s, i + 2) - 128)
+            nbyte = 3
+        elseif c < 248 then
+            resdata = (c - 240) * 262144 + (string.byte(s, i + 1) - 128) * 4096 + (string.byte(s, i + 2) - 128) * 64 + (string.byte(s, i + 3) - 128)
+            nbyte = 4
+        end
+        ucsdata = ucsdata .. string.format("%04X", resdata):fromHex()
+        i = i + nbyte
+    end
+    return ucsdata
+end
+
 -- 解析address digits
 local function bcd_number_to_ascii(bcd_number, sender_address_length_raw)
     local length = #bcd_number
