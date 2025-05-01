@@ -10,7 +10,7 @@
 - [x] 支持多个推送平台，目前接入：
   - [x] [LuatOS社区提供的推送服务器](https://push.luatos.org/)
   - [x] Bark
-  - [x] Server酱
+  - [x] [Server酱](https://sct.ftqq.com/r/13198)
   - [x] 钉钉机器人
   - [x] 推送加 PushPlus
   - [x] Telegram（感谢 [@wongJG](https://github.com/wongJG) 的 Pull Request）
