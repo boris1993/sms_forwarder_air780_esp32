@@ -5,6 +5,7 @@ local sysplus = require("sysplus")
 local constants = require("constants")
 local config = require("config")
 local utils = require("utils")
+local lib_smtp = require("lib_smtp")
 
 -- https://tutorialspots.com/lua-urlencode-and-urldecode-5528.html
 local function urlencode(str)
@@ -20,14 +21,14 @@ local function urlencode(str)
 
 local function smtp(sender_number, content)
     local smtp_config = {
-        host = config.notification_channel.stmp.SMTP_HOST,
-        port = config.notification_channel.stmp.SMTP_PORT,
-        username = config.notification_channel.stmp.SMTP_USERNAME,
-        password = config.notification_channel.stmp.SMTP_PASSWORD,
-        mail_from = config.notification_channel.stmp.SMTP_MAIL_FROM,
-        mail_to = config.notification_channel.stmp.SMTP_MAIL_TO,
-        tls_enable = config.notification_channel.stmp.SMTP_TLS_ENABLE,
-        subject_config = config.notification_channel.stmp.SMTP_MAIL_SUBJECT,
+        host = config.notification_channel.smtp.SMTP_HOST,
+        port = config.notification_channel.smtp.SMTP_PORT,
+        username = config.notification_channel.smtp.SMTP_USERNAME,
+        password = config.notification_channel.smtp.SMTP_PASSWORD,
+        mail_from = config.notification_channel.smtp.SMTP_MAIL_FROM,
+        mail_to = config.notification_channel.smtp.SMTP_MAIL_TO,
+        tls_enable = config.notification_channel.smtp.SMTP_TLS_ENABLE,
+        subject_config = config.notification_channel.smtp.SMTP_MAIL_SUBJECT,
     }
     
     local result = lib_smtp.send(content,sender_number,smtp_config)
